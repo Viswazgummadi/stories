@@ -301,10 +301,12 @@ function getImagesForStory(categoryName, cardIndex) {
   const prefix = categoryName.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
   const storyNumber = cardIndex + 1; // 1-indexed
 
-  // Strict mapping enforcement
+  // Strict mapping enforcement - account for Vite hashing in production!
   const matches = imagePaths.filter(path => {
     const filename = path.split('/').pop().toLowerCase();
-    return filename.startsWith(`${prefix}_${storyNumber}.`) || filename.startsWith(`${prefix}_${storyNumber}_`);
+    return filename.startsWith(`${prefix}_${storyNumber}.`) || 
+           filename.startsWith(`${prefix}_${storyNumber}-`) || 
+           filename.startsWith(`${prefix}_${storyNumber}_`);
   });
 
   matches.sort(); // Guarantees proper _1, _2 ordering for slideshows
