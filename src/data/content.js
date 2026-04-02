@@ -209,6 +209,12 @@ Another lesson of the story is the value of being mindful and acting as a group.
           image: "https://images.unsplash.com/photo-1580130732557-08c3d9a3eeea?q=80&w=800&auto=format&fit=crop",
           storyText: `“न्याय्यात् पथः प्रविचलन्ति पदं न धीराः।”\n\nThe wise do not deviate from the path of justice.`,
           democraticLesson: `Reflects the principle of the rule of law, where justice must be followed consistently without bias.`
+        },
+        {
+          title: "On Good Governance",
+          image: "https://images.unsplash.com/photo-1542044896530-05d85be9b11a?q=80&w=800&auto=format&fit=crop",
+          storyText: `“राजा धर्मेण भूमिं पालयेत्।”\n\nA king must rule the land according to dharma (righteousness).`,
+          democraticLesson: `This aligns with constitutional governance, where authority is exercised within the framework of law and ethics.`
         }
       ]
     },
@@ -256,15 +262,60 @@ Another lesson of the story is the value of being mindful and acting as a group.
     },
     {
       categoryName: "Avadana Literature",
-      categoryIntro: `Avadana literature focuses on karma and ethical life, giving equal attention to kings and commoners alike, showing how morality influences all echelons of society.`,
+      categoryIntro: `The Avadana literature is a critical section of the Buddhist narrative tradition made up of moral tales emphasizing karma and ethical living. It frequently pays equal attention to everyone, kings and commoners alike.`,
       stories: [
         {
-          title: "Equality and Ethical Responsibility",
+          title: "Equality and Dignity of Personality",
           image: "https://images.unsplash.com/photo-1582298538104-e0adfc10d0db?q=80&w=800&auto=format&fit=crop",
-          storyText: `All people are equal before karma. As Emperor Ashoka transformed his reign towards benevolence and non-violence after seeing war, rulers must learn and reform.`,
-          democraticLesson: `Values equality irrespective of social status, teaching that leaders remain accountable to their actions in promoting the commonwealth and community peace.`
+          storyText: `“न जात्या ब्राह्मणो भवति, कर्मणा ब्राह्मणो भवति।”\n\nThis implies that an individual is not evaluated based on birth, but through deeds. All people, kings and commoners, are equal before the law of karma.`,
+          democraticLesson: `This concept is very democratic in nature where everyone is taken to be equal irrespective of social background, caste, and status. It fosters integrity and equality in the society.`
+        },
+        {
+          title: "Ethical Responsibility and Accountability",
+          image: "https://images.unsplash.com/photo-1555169062-013468b47731?q=80&w=800&auto=format&fit=crop",
+          storyText: `“यथा कर्म तथा फलम्।” (As he doeth so will be done.)\n\nAvadana stories keep reiterating the fact that all acts come with consequences and no one can get away with the consequences of their actions.`,
+          democraticLesson: `A key democratic principle of accountability where both the individual and the leader are answerable for their actions. Just like in the tales, rulers are responsible for their policies and their impacts.`
+        },
+        {
+          title: "Ashoka and The Common Good",
+          image: "https://images.unsplash.com/photo-1540324155974-7523202daa3f?q=80&w=800&auto=format&fit=crop",
+          storyText: `“बहुजन हिताय बहुजन सुखाय।” (To the commonwealth and prosperity of the majority.)\n\nAfter witnessing the devastation of war, Emperor Ashoka becomes a king led by benevolence and ethical duty, encouraging non-violence and justice.`,
+          democraticLesson: `Responsive and ethical leadership whereby a ruler listens, learns, and reforms. It emphasizes the greater good serving the entire society over individual selfishness.`
         }
       ]
     }
   ]
 };
+
+// ==========================================
+// DYNAMIC IMAGE MAPPING LOGIC
+// ==========================================
+// This utilizes Vite's eager import.meta.glob to load structured, correctly-named images.
+// Files MUST exactly follow the naming scheme: "[categoryFirstWord]_[index].jpeg"
+// Example: "panchatantra_1.png", or "shukasaptati_2_1.jpeg" (for slideshows)
+const globImages = import.meta.glob('/public/assets/uploads/*.{jpg,jpeg,png,webp}', { eager: true, import: 'default' });
+const imagePaths = Object.values(globImages);
+
+function getImagesForStory(categoryName, cardIndex) {
+  // Extract strictly the first word in lowercase (e.g., "Panchatantra Tales" -> "panchatantra")
+  const prefix = categoryName.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+  const storyNumber = cardIndex + 1; // 1-indexed
+
+  // Strict mapping enforcement
+  const matches = imagePaths.filter(path => {
+    const filename = path.split('/').pop().toLowerCase();
+    return filename.startsWith(`${prefix}_${storyNumber}.`) || filename.startsWith(`${prefix}_${storyNumber}_`);
+  });
+
+  matches.sort(); // Guarantees proper _1, _2 ordering for slideshows
+
+  // Fallback to placeholder if strictly named image not found
+  return matches.length > 0 ? matches : ['https://images.unsplash.com/photo-1555169062-013468b47731?q=80&w=800&auto=format&fit=crop'];
+}
+
+// Inject the mapped image arrays into the stories
+contentData.categories.forEach(category => {
+  category.stories.forEach((story, idx) => {
+    story.image = getImagesForStory(category.categoryName, idx);
+  });
+});
